@@ -1035,19 +1035,23 @@ def handle_guess_answer(message):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 bot.polling()
+
+
+
+from flask import Flask
+import threading
+
+app = Flask(__name__)
+
+@app.route('/health')
+def health_check():
+    return 'Bot is alive!'
+
+# Запускаем сервер в отдельном потоке
+def run_flask():
+    app.run(host='0.0.0.0', port=10000)
+
+flask_thread = threading.Thread(target=run_flask)
+flask_thread.daemon = True
+flask_thread.start()
