@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from personal_vocabulary import save_to_vocabulary_db, get_personal_vocabulary
 from deep_translator import GoogleTranslator
 import textwrap
+import sqlite3
 
 bot = TeleBot(BOT_TOKEN)
 
@@ -1030,6 +1031,45 @@ def handle_guess_answer(message):
         threading.Timer(2, next_round).start()
 
 
+@bot.message_handler(commands=['getusersfile'])
+def get_users_as_file(message):
+    try:
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+
+        # Получаем данные с колонками
+        cur.execute("PRAGMA table_info(users)")
+        columns = [col[1] for col in cur.fetchall()]
+
+        cur.execute("SELECT * FROM users")
+        rows = cur.fetchall()
+
+        if not rows:
+            bot.send_message(message.chat.id, "Таблица 'users' пуста.")
+            conn.close()
+            return
+
+        # Создаём текстовый файл
+        filename = "users_data.txt"
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write("=== Таблица 'users' ===\n\n")
+            f.write(" | ".join(columns) + "\n")
+            f.write("-" * len(" | ".join(columns)) + "\n")
+
+            for row in rows:
+                f.write(" | ".join(str(cell) for cell in row) + "\n")
+
+        # Отправляем файл
+        with open(filename, "rb") as file:
+            bot.send_document(message.chat.id, file, caption="Данные таблицы 'users'")
+
+        conn.close()
+        os.remove(filename)  # удаляем временный файл
+
+    except sqlite3.Error as e:
+        bot.send_message(message.chat.id, f"Ошибка БД: {e}")
+    except Exception as e:
+        bot.send_message(message.chat.id, f"Ошибка: {e}")
 
 
 
