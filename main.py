@@ -207,6 +207,7 @@ def handle_genre_confirmation(call):
             message_id=call.message.message_id,
             text=f"Вы выбрали жанры: {', '.join(selected_genres)}"
         )
+        bot.answer_callback_query(call.id, "Жмите на /films!", show_alert=True)
     else:
         bot.answer_callback_query(call.id, "Ничего не выбрано!", show_alert=True)
 
