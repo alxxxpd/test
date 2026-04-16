@@ -77,6 +77,32 @@ def select_data(user_id, column):
     logging.info(f"Из таблицы users выбрано значение {column} где user_id = {user_id}")
 
 
+def delete_user(user_id):
+    try:
+        # Подключаемся к базе данных
+        conn = sqlite3.connect('db.sqlite')
+        cursor = conn.cursor()
+        
+        # Выполняем удаление
+        cursor.execute(
+            "DELETE FROM users WHERE user_id = ?",
+            (user_id,)
+        )
+        
+        # Сохраняем изменения
+        conn.commit()
+        
+        # Закрываем соединение
+        conn.close()
+        
+        print(f"Пользователь с ID {user_id} успешно удалён (если существовал)")
+        return True
+        
+    except sqlite3.Error as e:
+        print(f"Ошибка при удалении пользователя: {e}")
+        return False
+
+
 
 films = [
     {"title": "Muzzy in Gondoland (Маззи), 1986",
