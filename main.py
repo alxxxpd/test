@@ -1,4 +1,4 @@
-from data import get_user_data, insert_data, update_data, select_data
+from data import get_user_data, insert_data, update_data, select_data, delete_user
 from telebot import TeleBot
 from config import BOT_TOKEN
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
@@ -556,6 +556,16 @@ def watched_list(message):
         message_text = "Вы пока не добавили ни одного фильма."
 
     bot.send_message(user_id, message_text, parse_mode='HTML')
+
+
+@bot.message_handler(commands=['delete'])
+def delete(message):
+  user_id = message.from_user.id
+  try:
+    delete_user(user_id)
+    bot.send_message(user_id, "Успешно удалено", parse_mode='HTML')
+  except requests.exceptions.RequestException as e:
+        print(f"Проблема с соединением: {e}")
 
 
 
